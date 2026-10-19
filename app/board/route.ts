@@ -1,0 +1,1 @@
+import html from '../board.html?raw';import {getChatGPTUser} from '../chatgpt-auth';export const dynamic='force-dynamic';export async function GET(){if(!await getChatGPTUser())return new Response('请登录后使用',{status:401});return new Response(html,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}})}

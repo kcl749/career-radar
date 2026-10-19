@@ -1,0 +1,3 @@
+import {sqliteTable,text,integer,primaryKey} from 'drizzle-orm/sqlite-core';
+export const marks=sqliteTable('marks',{userId:text('user_id').notNull(),jobId:text('job_id').notNull(),saved:integer('saved').notNull().default(0),applied:integer('applied').notNull().default(0),feedback:text('feedback').notNull().default(''),feedbackReason:text('feedback_reason').notNull().default(''),feedbackNote:text('feedback_note').notNull().default(''),updated:text('updated').notNull() },t=>[primaryKey({columns:[t.userId,t.jobId]})]);
+export const customJobs=sqliteTable('custom_jobs',{userId:text('user_id').notNull(),jobId:text('job_id').notNull(),data:text('data').notNull()},t=>[primaryKey({columns:[t.userId,t.jobId]})]);

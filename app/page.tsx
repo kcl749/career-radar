@@ -1,0 +1,1 @@
+import {requireChatGPTUser} from './chatgpt-auth';export const dynamic='force-dynamic';export default async function Home(){await requireChatGPTUser('/');return <iframe title="职途雷达在线版" src="/board" style={{width:'100%',height:'100dvh',border:0,display:'block'}}/>}

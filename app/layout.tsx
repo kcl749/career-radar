@@ -1,0 +1,1 @@
+import type {Metadata} from 'next';export const metadata:Metadata={title:'职途雷达 · 云端同步',description:'跨设备同步的个人岗位收藏、投递与筛选反馈'};export default function Layout({children}:{children:React.ReactNode}){return <html lang="zh-CN"><body style={{margin:0}}>{children}</body></html>}
