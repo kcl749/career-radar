@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>职途雷达 · 每日行测训练</title>
+  <style>
+    :root{font-family:Inter,"Microsoft YaHei",sans-serif;color:#183931;background:#f4f7f2}*{box-sizing:border-box}body{margin:0}header{display:flex;justify-content:space-between;align-items:center;padding:20px 5%;background:#fff;border-bottom:1px solid #dce4dc}a{color:#246c4c}.logo{font-size:20px;font-weight:800;text-decoration:none}main{max-width:1040px;margin:auto;padding:36px 22px 70px}.hero{display:grid;grid-template-columns:1.6fr 1fr;gap:24px;margin-bottom:28px}.hero h1{font-size:40px;letter-spacing:-1.5px;margin:8px 0}.panel,.question{background:#fff;border:1px solid #dbe3d8;border-radius:16px;padding:22px}.panel{background:#e6eee4;line-height:1.8}.muted{color:#6b7d74;font-size:14px}.progress{height:10px;background:#d7e0d5;border-radius:99px;overflow:hidden;margin:12px 0}.progress span{display:block;height:100%;background:#2f7656;width:0;transition:.25s}.section-title{display:flex;justify-content:space-between;align-items:center;margin:30px 0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.question h3{margin:0 0 8px;font-size:17px}.sequence{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:18px 0}.symbol{width:76px;height:76px;border:1px solid #ccd8cd;border-radius:12px;background:#fbfcfa;display:grid;place-items:center;font-size:36px}.symbol svg{width:62px;height:62px}.options{display:grid;grid-template-columns:1fr 1fr;gap:9px}.option{border:1px solid #ccd8cd;border-radius:10px;padding:11px;cursor:pointer;display:flex;gap:8px;align-items:center}.option:hover{background:#eff4ed}.option input{accent-color:#2f7656}.option .mini{display:inline-grid;place-items:center;min-width:38px;font-size:22px}.answer{margin-top:14px;padding:12px;border-radius:9px;background:#edf4eb;display:none;line-height:1.7}.answer.show{display:block}.correct{border-color:#2f7656;background:#e8f3e9}.wrong{border-color:#b9534e;background:#faeceb}.actions{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap}button{font:inherit;border:1px solid #c9d5c8;border-radius:9px;background:#fff;color:#183931;padding:11px 16px;cursor:pointer}.primary{background:#215841;color:#fff;border-color:#215841}.primary:hover{background:#327653}footer{margin-top:35px;padding-top:22px;border-top:1px solid #dbe3d8}.badge{display:inline-block;background:#edf2eb;border-radius:7px;padding:5px 9px;font-size:12px;margin-right:6px}@media(max-width:760px){.hero,.grid{grid-template-columns:1fr}.hero h1{font-size:32px}.options{grid-template-columns:1fr}.symbol{width:64px;height:64px}}
+  </style>
+</head>
+<body>
+  <header><a class="logo" href="/board">◉ 职途雷达</a><span class="muted">每日行测训练</span></header>
+  <main>
+    <section class="hero">
+      <div><span class="badge">原创题型</span><span class="badge">每日 6 题</span><h1>每天练一点，笔试更从容。</h1><p class="muted">3 道图形推理 + 3 道资料计算。题目按日期生成，当天刷新仍保持一致。</p></div>
+      <aside class="panel"><strong id="date"></strong><div class="progress"><span id="bar"></span></div><span id="summary">今日完成 0 / 6</span><br><span class="muted">答案保存在当前浏览器。</span></aside>
+    </section>
+    <div class="section-title"><h2>图形推理</h2><span class="muted">旋转 · 位置 · 数量/属性</span></div>
+    <section class="grid" id="visual"></section>
+    <div class="section-title"><h2>资料计算</h2><span class="muted">增长率 · 比重 · 平均数</span></div>
+    <section class="grid" id="data"></section>
+    <div class="actions"><button class="primary" id="check">提交并查看解析</button><button id="reset">重做今日题目</button><a href="/board"><button>返回岗位库</button></a></div>
+    <footer class="muted">本页为针对常见职业能力测评题型制作的原创练习，不包含或抓取北森商业题库原题。正式测评的题型、数量和时限以招聘方实际页面为准。</footer>
+  </main>
+<script>
+const date=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'});document.getElementById('date').textContent=date+' 今日训练';
+let seed=[...date].reduce((a,c)=>(a*33+c.charCodeAt(0))>>>0,5381);const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i;i--){const j=Math.floor(rand()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cell=p=>{const points=[[14,14],[40,14],[66,14],[66,40],[66,66],[40,66],[14,66],[14,40]],q=points[p];return `<svg viewBox="0 0 80 80"><rect x="10" y="10" width="60" height="60" rx="5" fill="none" stroke="#aac0ae"/><path d="M30 10v60M50 10v60M10 30h60M10 50h60" stroke="#d9e2d7"/><circle cx="${q[0]}" cy="${q[1]}" r="7" fill="#2f7656"/></svg>`};
+function polygon(n,filled){const pts=[];for(let i=0;i<n;i++){const a=-Math.PI/2+i*2*Math.PI/n;pts.push(`${40+27*Math.cos(a)},${40+27*Math.sin(a)}`)}return `<svg viewBox="0 0 80 80"><polygon points="${pts.join(' ')}" fill="${filled?'#2f7656':'none'}" stroke="#2f7656" stroke-width="4"/></svg>`}
+function makeVisual(){const arrows=['↑','→','↓','←'];const start=Math.floor(rand()*4),step=rand()>.5?1:2,aseq=[0,1,2].map(i=>arrows[(start+i*step)%4]),ac=arrows[(start+3*step)%4];const aopts=shuffle([ac,arrows[(arrows.indexOf(ac)+1)%4],arrows[(arrows.indexOf(ac)+2)%4],arrows[(arrows.indexOf(ac)+3)%4]]);const ps=Math.floor(rand()*8),pstep=rand()>.5?1:2,pseq=[0,1,2].map(i=>(ps+i*pstep)%8),pc=(ps+3*pstep)%8;const popts=shuffle([pc,(pc+1)%8,(pc+3)%8,(pc+4)%8]);const sides=3+Math.floor(rand()*2),firstFill=rand()>.5,sseq=[0,1,2].map(i=>({n:sides+i,f:firstFill?i%2===0:i%2===1})),sc={n:sides+3,f:firstFill?false:true};const sopts=shuffle([sc,{n:sc.n,f:!sc.f},{n:sc.n-1,f:sc.f},{n:Math.min(8,sc.n+1),f:sc.f}]);return [
+{id:'v1',title:'方向旋转',prompt:'观察箭头的旋转规律，选择下一项。',seq:aseq.map(x=>`<span class="symbol">${x}</span>`).join(''),opts:aopts.map(x=>({value:x,html:x})),answer:ac,explain:`箭头每次旋转 ${step*90}°，所以下一项是 ${ac}。`},
+{id:'v2',title:'位置移动',prompt:'圆点沿外圈按固定步长移动，选择下一项。',seq:pseq.map(x=>`<span class="symbol">${cell(x)}</span>`).join(''),opts:popts.map(x=>({value:String(x),html:cell(x)})),answer:String(pc),explain:`圆点每次沿外圈移动 ${pstep} 格，下一位置如正确选项所示。`},
+{id:'v3',title:'数量与填充',prompt:'多边形边数递增，同时填充状态交替，选择下一项。',seq:sseq.map(x=>`<span class="symbol">${polygon(x.n,x.f)}</span>`).join(''),opts:sopts.map(x=>({value:`${x.n}-${x.f}`,html:polygon(x.n,x.f)})),answer:`${sc.n}-${sc.f}`,explain:`边数依次增加 1，实心与空心交替，因此应为 ${sc.n} 边${sc.f?'实心':'空心'}图形。`}
+]}
+function numericOptions(correct,unit,delta){return shuffle([correct,correct+delta,Math.max(0,correct-delta),correct+delta*2].map(x=>({value:String(x),html:`${x}${unit}`})))}
+function makeData(){const bases=[80,100,120,160],rates=[10,15,20,25],base=bases[Math.floor(rand()*bases.length)],rate=rates[Math.floor(rand()*rates.length)],now=base*(100+rate)/100;const totals=[400,500,600,800],shares=[20,25,30,40],total=totals[Math.floor(rand()*totals.length)],share=shares[Math.floor(rand()*shares.length)],part=total*share/100;const count=4+Math.floor(rand()*4),avg=18+Math.floor(rand()*13),sum=count*avg;return [
+{id:'d1',title:'增长率',prompt:`某业务指标由 ${base} 增长到 ${now}。增长率是多少？`,opts:numericOptions(rate,'%',5),answer:String(rate),explain:`增长率 = (${now} - ${base}) ÷ ${base} × 100% = ${rate}%。`},
+{id:'d2',title:'比重',prompt:`某批样本共 ${total} 条，其中符合条件的有 ${part} 条。符合条件的占比是多少？`,opts:numericOptions(share,'%',5),answer:String(share),explain:`占比 = ${part} ÷ ${total} × 100% = ${share}%。`},
+{id:'d3',title:'平均数',prompt:`连续 ${count} 天共处理 ${sum} 条数据，平均每天处理多少条？`,opts:numericOptions(avg,' 条',3),answer:String(avg),explain:`平均数 = ${sum} ÷ ${count} = ${avg} 条。`}
+]}
+const questions=[...makeVisual(),...makeData()],key='careerRadarPractice:'+date;let saved={};try{saved=JSON.parse(localStorage.getItem(key)||'{}')}catch{}
+function card(q){return `<article class="question" data-id="${q.id}"><h3>${q.title}</h3><p class="muted">${q.prompt}</p>${q.seq?`<div class="sequence">${q.seq}<span class="symbol">?</span></div>`:''}<div class="options">${q.opts.map((o,i)=>`<label class="option"><input type="radio" name="${q.id}" value="${esc(o.value)}" ${saved[q.id]?.value===o.value?'checked':''}><span>${String.fromCharCode(65+i)}.</span><span class="mini">${o.html}</span></label>`).join('')}</div><div class="answer ${saved.submitted?'show':''}"><strong>${saved[q.id]?.value===q.answer?'回答正确':'正确答案：'+String.fromCharCode(65+q.opts.findIndex(o=>o.value===q.answer))}</strong><br>${q.explain}</div></article>`}
+function draw(){document.getElementById('visual').innerHTML=questions.slice(0,3).map(card).join('');document.getElementById('data').innerHTML=questions.slice(3).map(card).join('');if(saved.submitted)mark();update()}
+function update(){const done=questions.filter(q=>saved[q.id]?.value).length;document.getElementById('summary').textContent=`今日完成 ${done} / 6${saved.submitted?' · 已提交':''}`;document.getElementById('bar').style.width=(done/6*100)+'%'}
+function mark(){questions.forEach(q=>{const c=document.querySelector(`[data-id="${q.id}"]`);const v=saved[q.id]?.value;c.querySelectorAll('.option').forEach(x=>{const r=x.querySelector('input');if(r.value===q.answer)x.classList.add('correct');else if(r.checked)x.classList.add('wrong')})})}
+document.addEventListener('change',e=>{if(e.target.matches('input[type=radio]')){saved[e.target.name]={value:e.target.value};localStorage.setItem(key,JSON.stringify(saved));update()}});
+document.getElementById('check').onclick=()=>{const missing=questions.filter(q=>!saved[q.id]?.value);if(missing.length){alert(`还有 ${missing.length} 道题未作答。`);return}saved.submitted=true;localStorage.setItem(key,JSON.stringify(saved));draw()};
+document.getElementById('reset').onclick=()=>{if(confirm('确定重做今天的 6 道题吗？')){saved={};localStorage.removeItem(key);draw()}};draw();
+</script>
+</body>
+</html>
+
