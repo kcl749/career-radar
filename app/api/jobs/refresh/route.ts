@@ -23,7 +23,7 @@ export async function POST(req:Request){
     const jobs=await fetchCandidates(type,count,date,fetch,excluded);
     if(!jobs.length)return json({error:'本次没有找到从未推荐过且仍开放的匹配岗位，请稍后重试'},404);
     await env.DB.batch(jobs.map(job=>env.DB.prepare('INSERT INTO custom_jobs(user_id,job_id,data) VALUES(?,?,?) ON CONFLICT(user_id,job_id) DO UPDATE SET data=excluded.data').bind(user.userId,job.id,JSON.stringify(job))));
-    return json({ok:true,jobs,note:`已排除历史岗位，从${type==='秋招'?'牛客校招':'实习僧'}公开页面加入 ${jobs.length} 个全新待复核候选；请在投递当日复核企业官网状态`});
+    return json({ok:true,jobs,note:`已排除历史岗位及公司黑名单（快手、Shopee/虾皮、携程），从${type==='秋招'?'牛客校招':'实习僧'}公开页面加入 ${jobs.length} 个全新待复核候选；请在投递当日复核企业官网状态`});
   }catch(error){
     console.error('job refresh failed',error);
     return json({error:error instanceof Error&&error.message.includes('JSON')?'请求格式无效':'公开招聘页面暂时不可用，请稍后重试'},502);

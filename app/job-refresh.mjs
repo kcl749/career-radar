@@ -1,8 +1,9 @@
 const TARGETS=['时间序列','机器学习','算法','数据科学','数据挖掘','数据分析','统计','Python','SQL','R语言','Spark','Hadoop','预测','因果推断','推荐','Tableau','Power BI'];
 const REQUIRED_TARGETS=['时间序列','机器学习','算法','数据科学','数据挖掘','数据分析','统计','预测','因果推断','推荐'];
 const CITIES=['深圳','广州','上海','北京'];
-const BLOCKED=['销售','客服','行政','人事','市场推广','软件测试','产品运营'];
-const SCHOOL_SEARCHES=['机器学习','算法工程师','时间序列','预测算法','数据科学','数据挖掘','推荐算法','数据分析','商业分析','风控算法'];
+const BLOCKED=['销售','客服','行政','人事','市场推广','软件测试','测试工程师','产品运营'];
+const EXCLUDED_COMPANIES=['快手','shopee','shoppe','虾皮','携程'];
+const SCHOOL_SEARCHES=['机器学习','算法工程师','AI算法','时间序列','预测算法','预测','数据科学','数据挖掘','数据建模','推荐算法','数据分析','商业分析','商业智能','风控算法','量化分析','用户增长'];
 const INTERN_SEARCHES=['机器学习 算法','时间序列','数据科学','数据挖掘','数据分析'];
 const OUTSIDE_MAINLAND=['新加坡','香港','澳门','台北','海外'];
 
@@ -25,6 +26,7 @@ function dateCN(value){if(!value)return '';const d=new Date(Number(value));retur
 function cityScore(text){const i=CITIES.findIndex(city=>text.includes(city));return i<0?0:20-i*4}
 function keywords(text){return TARGETS.filter(x=>text.toLowerCase().includes(x.toLowerCase())).slice(0,8)}
 function relevant(text){return REQUIRED_TARGETS.some(x=>text.toLowerCase().includes(x.toLowerCase()))}
+function excludedCompany(name=''){const value=name.toLowerCase();return EXCLUDED_COMPANIES.some(company=>value.includes(company.toLowerCase()))}
 function score(text,title=''){
   const weights={'时间序列':20,'机器学习':18,'数据科学':16,'算法':14,'数据挖掘':13,'数据分析':12,'统计':10,'预测':9,'因果推断':9,'推荐':7,'Python':7,'SQL':6,'Spark':4,'Hadoop':4};
   let value=cityScore(text);
@@ -99,9 +101,10 @@ export async function fetchCandidates(type,count,date,fetcher=fetch,excludedValu
     const jobs=pages.flatMap(x=>x.status==='fulfilled'?parseNowcoder(x.value):[]).filter(job=>{
       if(!job?.id||seen.has(job.id)||isExcluded(job.id)||job.status!==0)return false;seen.add(job.id);
       let ext={};try{ext=JSON.parse(job.ext||'{}')}catch{}
+      const company=job.recommendInternCompany?.companyShortName||job.recommendInternCompany?.companyName||job.user?.introduction||'';
       const all=`${job.jobName||''} ${ext.requirements||''} ${ext.infos||''}`;
       const city=(job.jobCityList||[]).join('/')||job.jobCity||'';
-      if(!relevant(all)||BLOCKED.some(word=>(job.jobName||'').includes(word))||/实习/.test(job.jobName||'')||OUTSIDE_MAINLAND.some(place=>city.includes(place)))return false;
+      if(excludedCompany(company)||!relevant(all)||BLOCKED.some(word=>(job.jobName||'').includes(word))||/实习/.test(job.jobName||'')||OUTSIDE_MAINLAND.some(place=>city.includes(place)))return false;
       return !(job.deliverEnd&&Number(job.deliverEnd)<Date.now());
     }).sort((a,b)=>{
       const ta=`${a.jobName} ${a.jobCity} ${a.ext}`,tb=`${b.jobName} ${b.jobCity} ${b.ext}`;
@@ -114,7 +117,7 @@ export async function fetchCandidates(type,count,date,fetcher=fetch,excludedValu
   const seen=new Set();
   const seeds=pages.flatMap(x=>x.status==='fulfilled'?parseShixisengList(x.value):[]).filter(job=>{
     if(seen.has(job.url)||isExcluded(job.url))return false;seen.add(job.url);
-    return relevant(job.title)&&!BLOCKED.some(word=>job.title.includes(word));
+    return !excludedCompany(job.company)&&relevant(job.title)&&!BLOCKED.some(word=>job.title.includes(word));
   });
   const details=await Promise.allSettled(seeds.slice(0,Math.max(count*3,20)).map(async seed=>parseShixisengDetail(await getText(fetcher,seed.url),seed)));
   return details.flatMap(x=>x.status==='fulfilled'&&x.value?[x.value]:[]).filter(job=>{
