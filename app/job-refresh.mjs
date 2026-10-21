@@ -2,7 +2,9 @@ const TARGETS=['时间序列','机器学习','算法','数据科学','数据挖�
 const REQUIRED_TARGETS=['时间序列','机器学习','算法','数据科学','数据挖掘','数据分析','统计','预测','因果推断','推荐'];
 const CITIES=['深圳','广州','上海','北京'];
 const BLOCKED=['销售','客服','行政','人事','市场推广','软件测试','产品运营'];
-const SEARCHES=['机器学习 算法','时间序列','数据科学','数据挖掘','数据分析'];
+const SCHOOL_SEARCHES=['机器学习','算法工程师','时间序列','预测算法','数据科学','数据挖掘','推荐算法','数据分析','商业分析','风控算法'];
+const INTERN_SEARCHES=['机器学习 算法','时间序列','数据科学','数据挖掘','数据分析'];
+const OUTSIDE_MAINLAND=['新加坡','香港','澳门','台北','海外'];
 
 export function decodeHtml(value=''){
   return value.replace(/&#x[0-9a-f]+;?/gi,'').replace(/&#(\d+);?/g,(_,n)=>String.fromCodePoint(Number(n))).replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');
@@ -13,6 +15,12 @@ export function textOnly(value=''){
 }
 
 function hash(value){let h=2166136261;for(let i=0;i<value.length;i++){h^=value.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36)}
+function exclusionKey(value=''){
+  const raw=String(value).trim();
+  if(!raw)return '';
+  try{const url=new URL(raw);return url.pathname.split('/').filter(Boolean).at(-1)||raw}catch{}
+  return raw.replace(/^auto-/,'').replace(/^(?:nc|sxs)-/,'');
+}
 function dateCN(value){if(!value)return '';const d=new Date(Number(value));return Number.isFinite(d.getTime())?new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(d).replaceAll('/','-'):''}
 function cityScore(text){const i=CITIES.findIndex(city=>text.includes(city));return i<0?0:20-i*4}
 function keywords(text){return TARGETS.filter(x=>text.toLowerCase().includes(x.toLowerCase())).slice(0,8)}
@@ -82,15 +90,18 @@ async function getText(fetcher,url){
   return response.text();
 }
 
-export async function fetchCandidates(type,count,date,fetcher=fetch){
+export async function fetchCandidates(type,count,date,fetcher=fetch,excludedValues=[]){
+  const excluded=new Set(excludedValues.map(exclusionKey).filter(Boolean));
+  const isExcluded=value=>excluded.has(exclusionKey(value));
   if(type==='秋招'){
-    const pages=await Promise.allSettled(SEARCHES.map(term=>getText(fetcher,'https://www.nowcoder.com/jobs/school/jobs?search='+encodeURIComponent(term))));
+    const pages=await Promise.allSettled(SCHOOL_SEARCHES.map(term=>getText(fetcher,'https://www.nowcoder.com/jobs/school/jobs?search='+encodeURIComponent(term))));
     const seen=new Set();
     const jobs=pages.flatMap(x=>x.status==='fulfilled'?parseNowcoder(x.value):[]).filter(job=>{
-      if(!job?.id||seen.has(job.id)||job.status!==0)return false;seen.add(job.id);
+      if(!job?.id||seen.has(job.id)||isExcluded(job.id)||job.status!==0)return false;seen.add(job.id);
       let ext={};try{ext=JSON.parse(job.ext||'{}')}catch{}
       const all=`${job.jobName||''} ${ext.requirements||''} ${ext.infos||''}`;
-      if(!relevant(all)||BLOCKED.some(word=>(job.jobName||'').includes(word)))return false;
+      const city=(job.jobCityList||[]).join('/')||job.jobCity||'';
+      if(!relevant(all)||BLOCKED.some(word=>(job.jobName||'').includes(word))||/实习/.test(job.jobName||'')||OUTSIDE_MAINLAND.some(place=>city.includes(place)))return false;
       return !(job.deliverEnd&&Number(job.deliverEnd)<Date.now());
     }).sort((a,b)=>{
       const ta=`${a.jobName} ${a.jobCity} ${a.ext}`,tb=`${b.jobName} ${b.jobCity} ${b.ext}`;
@@ -99,10 +110,10 @@ export async function fetchCandidates(type,count,date,fetcher=fetch){
     return jobs.map((job,index)=>nowcoderJob(job,index,date));
   }
 
-  const pages=await Promise.allSettled(SEARCHES.map(term=>getText(fetcher,'https://www.shixiseng.com/interns?keyword='+encodeURIComponent(term))));
+  const pages=await Promise.allSettled(INTERN_SEARCHES.map(term=>getText(fetcher,'https://www.shixiseng.com/interns?keyword='+encodeURIComponent(term))));
   const seen=new Set();
   const seeds=pages.flatMap(x=>x.status==='fulfilled'?parseShixisengList(x.value):[]).filter(job=>{
-    if(seen.has(job.url))return false;seen.add(job.url);
+    if(seen.has(job.url)||isExcluded(job.url))return false;seen.add(job.url);
     return relevant(job.title)&&!BLOCKED.some(word=>job.title.includes(word));
   });
   const details=await Promise.allSettled(seeds.slice(0,Math.max(count*3,20)).map(async seed=>parseShixisengDetail(await getText(fetcher,seed.url),seed)));
