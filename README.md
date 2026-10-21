@@ -33,15 +33,39 @@ npm run dev
 
 ## 主要目录
 
-- `app/board.html`：岗位看板界面
+- `app/catalog.json`：唯一的内置岗位数据源
+- `app/catalog-core.mjs`：岗位目录校验、去重与批次元数据
+- `app/board/template.html`：在线版与离线版共用的页面结构
+- `app/board/styles.css`：看板样式
+- `app/board/client.js`：在线与离线共用的交互逻辑
+- `app/board/render.mjs`：将目录和运行模式注入页面模板
 - `app/api/state/route.ts`：读取和更新个人标记
 - `app/api/import/route.ts`：导入岗位及历史状态
 - `app/api/jobs/refresh/route.ts`：按类型和数量更新公开岗位候选
 - `app/job-refresh.mjs`：公开页面解析、去重和匹配排序
 - `app/practice.html`：每日行测训练页
 - `app/sync-core.mjs`：同步、校验与数据库操作
+- `scripts/apply-job-update.mjs`：只向目录追加从未出现的岗位，并生成报告和离线版
+- `scripts/make-offline.mjs`：从同一模板和目录生成单文件离线版
+- `scripts/check-project.mjs`：检查目录重复项、模板占位符和两种运行模式
 - `db/schema.ts`：数据库表结构
 - `drizzle/`：数据库迁移文件
 
-此仓库为私人项目，岗位数据仅用于个人求职管理。
+## 更新流程
 
+把核验后的新岗位写入 `app/updates/*.json`，然后运行：
+
+```bash
+node scripts/apply-job-update.mjs app/updates/本次更新.json
+```
+
+脚本只追加目录中从未出现过的岗位 ID 和申请链接，不会覆盖历史岗位。在线版在请求时读取 `app/catalog.json`，离线版也从该目录生成，因此不再需要手工同步多份 HTML。
+
+结构校验和离线版生成命令：
+
+```bash
+npm run check:project
+npm run offline
+```
+
+此仓库为私人项目，岗位数据仅用于个人求职管理。

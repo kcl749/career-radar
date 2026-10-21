@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>__CAREER_RADAR_TITLE__</title>
+  <style>__CAREER_RADAR_STYLES__</style>
+</head>
+<body>
+  <header>
+    <div class="logo">◉ 职途雷达 <span class="muted">/ 2027</span></div>
+    <span class="muted">__CAREER_RADAR_MODE_LABEL__</span>
+  </header>
+  <main>
+    <div class="row" style="margin-bottom:24px">
+      <span id="sync-status" role="status">正在载入岗位库…</span>
+      <div><button id="refresh-cloud" class="mode-online">刷新云端记录</button> <a href="__CAREER_RADAR_PRACTICE_HREF__">每日训练</a><span class="mode-online"> · <a href="/signout-with-chatgpt?return_to=/" target="_top">退出账号</a></span></div>
+    </div>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">CAREER RADAR</div>
+        <h1>让下一站，更接近你。</h1>
+        <p class="muted">聚焦算法与数据机会，按你的背景筛选，按你的偏好排序。</p>
+        <div><span class="tag">机器学习算法</span><span class="tag">时间序列算法</span><span class="tag">数据科学</span><span class="tag">数据挖掘</span><span class="tag">数据分析</span></div>
+      </div>
+      <aside class="profile"><strong>你的求职坐标</strong><br>统计学硕士 · 2027 年 6 月毕业<br>深圳 → 广州 → 上海 → 北京 → 全国<br>2026 年 11 月初到岗 · 每周 4–5 天 · 3–6 个月<br><span class="muted">Python / SQL / 机器学习 / 时间序列预测</span></aside>
+    </section>
+    <div class="stats"><div class="stat"><strong id="total">0</strong>已收录机会</div><div class="stat"><strong id="saved">0</strong>已收藏</div><div class="stat"><strong id="applied">0</strong>已投递</div></div>
+    <section>
+      <div class="row"><h2>值得关注的机会</h2><span class="muted" id="updated"></span></div>
+      <div class="card">
+        <div class="row">
+          <div><strong>一键更新岗位</strong><p class="muted mode-online">从公开招聘页面筛选候选，自动候选统一标记为“待复核”。</p><p class="muted mode-offline">离线文件无法直接抓取；选择类型和数量后可生成清晰的更新指令。</p></div>
+          <div class="toolbar"><select id="refresh-type" aria-label="更新岗位类型"><option value="秋招">秋招</option><option value="实习">实习</option></select><input id="refresh-count" type="number" min="1" max="20" value="10" aria-label="更新岗位数量" style="max-width:130px"><button id="refresh-jobs" class="primary">一键更新岗位</button></div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <select id="batch" aria-label="搜索批次"><option value="">全部批次</option></select>
+        <input id="q" aria-label="搜索公司、岗位或技能" placeholder="搜索公司、岗位或技能…">
+        <select id="city" aria-label="工作城市"><option value="">全国城市</option><option>深圳</option><option>广州</option><option>上海</option><option>北京</option><option>其他</option></select>
+        <select id="type" aria-label="招聘类型"><option value="">实习 + 秋招</option><option>实习</option><option>秋招</option></select>
+        <select id="view" aria-label="查看范围"><option value="">推荐机会（隐藏不适用）</option><option value="all">全部机会</option><option value="low">相关性低</option><option value="unsuitable">不适用</option><option value="saved">已收藏</option><option value="applied">已投递</option></select>
+      </div>
+      <div id="jobs"></div>
+      <div id="message" role="status"></div>
+    </section>
+    <details>
+      <summary>岗位库管理</summary>
+      <p class="muted mode-online">导入岗位清单或导出备份。岗位、收藏、投递和反馈保存在当前账号云端，同一账号可跨设备同步。</p>
+      <p class="muted mode-offline">岗位、收藏、投递和反馈保存在当前浏览器。可导出完整备份或筛选反馈。</p>
+      <button id="feedback-export" class="primary">导出筛选反馈</button> <button id="import">导入清单／备份</button> <button id="export">导出清单与记录</button><input id="file" type="file" accept="application/json" hidden>
+    </details>
+    <footer><strong>筛选原则</strong><p class="muted">优先近 7 天发布、仍开放申请且符合 2027 届或实习要求的岗位。每条记录展示核验日期；申请前请以企业官网状态为准。发布日期或资格未明确时标注待确认。</p><p class="muted" id="latest-note"></p></footer>
+  </main>
+  <script>__CAREER_RADAR_BOOTSTRAP__</script>
+  <script>__CAREER_RADAR_CLIENT__</script>
+</body>
+</html>
