@@ -164,7 +164,6 @@
       patch={feedback:element.value};
       if(!element.value)Object.assign(patch,{feedbackReason:'',feedbackNote:''});
       else patch.feedbackReason=state[element.dataset.id]?.feedbackReason||'未说明';
-      $('view').value=element.value||'all';
     }else if(element.dataset.feedback==='reason')patch={feedbackReason:element.value};
     else patch={feedbackNote:element.value.trim()};
     write(element.dataset.id,patch);
@@ -251,3 +250,4 @@
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pull()});
   }else say('✓ 离线岗位库已载入 · 记录保存在当前浏览器');
 })();
+
