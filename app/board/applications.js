@@ -158,7 +158,7 @@
     if(action==='archive'){
       try{
         const restoring=app.archived;
-        if(app.sourceJobId&&app.id===`job:${app.sourceJobId}`){const ok=await bridge.write(app.sourceJobId,{applied:restoring});if(!ok)throw Error('标记未保存，请稍后重试');if(bridge.online)await load();else{app.archived=!app.archived;storeOffline();render()}}
+        if(app.sourceJobId&&app.id===`job:${app.sourceJobId}`){const ok=await bridge.write(app.sourceJobId,{applied:restoring});if(!ok)throw Error('标记未保存，请稍后重试');if(bridge.online)await load()}
         else await save({...app,archived:!app.archived});
         selected=null;render();msg(restoring?'已恢复投递线。':'已归档，历史节点保留。');
       }catch(error){msg(error.message)}
