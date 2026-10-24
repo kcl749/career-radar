@@ -16,6 +16,8 @@
       <span id="sync-status" role="status">正在载入岗位库…</span>
       <div><button id="refresh-cloud" class="mode-online">刷新云端记录</button> <a href="__CAREER_RADAR_PRACTICE_HREF__">每日训练</a><span class="mode-online"> · <a href="/signout-with-chatgpt?return_to=/" target="_top">退出账号</a></span></div>
     </div>
+    <nav class="page-nav" aria-label="功能页"><button id="nav-recommend" class="selected" aria-current="page">推荐岗位</button><button id="nav-applications">已投递 <span id="application-nav-count">0</span></button></nav>
+    <div id="recommendation-page">
     <section class="hero">
       <div>
         <div class="eyebrow">CAREER RADAR</div>
@@ -50,9 +52,27 @@
       <p class="muted mode-offline">岗位、收藏、投递和反馈保存在当前浏览器。可导出完整备份或筛选反馈。</p>
       <button id="feedback-export" class="primary">导出筛选反馈</button> <button id="import">导入清单／备份</button> <button id="export">导出清单与记录</button><input id="file" type="file" accept="application/json" hidden>
     </details>
+    </div>
+    <section id="applications-page" hidden>
+      <div class="applications-head"><div><div class="eyebrow">APPLICATION JOURNEY</div><h1>你的投递池</h1><p class="muted">每一颗气泡是一段求职进程。点击查看时间线和下一步。</p></div><div class="toolbar"><button id="new-application" class="primary">＋ 手动添加</button><button id="application-import">导入投递信息</button><button id="application-export">导出 JSON 备份</button><input id="application-file" type="file" accept=".xlsx,.xls,.csv,.json" hidden></div></div>
+      <div class="application-summary"><span id="application-active-count">0 条进行中</span><span id="application-urgent-count">0 条需关注</span><label>查看 <select id="application-view"><option value="active">进行中</option><option value="archived">已归档</option><option value="all">全部</option></select></label></div>
+      <div id="application-message" role="status"></div>
+      <div id="application-import-workspace" class="import-workspace" hidden>
+        <div class="row"><div><h2>导入预览</h2><p class="muted" id="import-file-label"></p></div><button id="cancel-application-import">关闭预览</button></div>
+        <p class="muted">先对应表头，再逐行核对。日期无法识别时留空并提示；保存前不会写入记录。</p>
+        <div id="import-mapping" class="mapping-grid"></div>
+        <div class="toolbar"><button id="apply-import-mapping">应用列对应</button><span id="import-issues" class="muted"></span></div>
+        <div class="table-scroll"><table class="preview-table"><thead><tr><th>#</th><th>公司 *</th><th>岗位 *</th><th>投递日期</th><th>当前状态</th><th>下一步</th><th>截止日期</th><th>重复处理</th><th>提示</th></tr></thead><tbody id="application-preview"></tbody></table></div>
+        <div class="toolbar"><button id="confirm-application-import" class="primary">确认保存</button><button id="cancel-application-import-bottom">取消</button></div>
+      </div>
+      <div id="application-pool" class="application-pool"></div>
+    </section>
     <footer><strong>筛选原则</strong><p class="muted">优先近 7 天发布、仍开放申请且符合 2027 届或实习要求的岗位。每条记录展示核验日期；申请前请以企业官网状态为准。发布日期或资格未明确时标注待确认。</p><p class="muted" id="latest-note"></p></footer>
   </main>
   <script>__CAREER_RADAR_BOOTSTRAP__</script>
+  <script>__CAREER_RADAR_PAPA__</script>
+  <script>__CAREER_RADAR_EXCEL__</script>
   <script>__CAREER_RADAR_CLIENT__</script>
+  <script>__CAREER_RADAR_APPLICATIONS__</script>
 </body>
 </html>

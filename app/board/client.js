@@ -108,6 +108,7 @@
       updateSummary();
       say(`☁ 已同步 · ${data.user} · ${new Date().toLocaleTimeString()}`);
       draw();
+      window.dispatchEvent(new Event('radar:state'));
     }catch(error){
       say(error.message);
       $('message').textContent='无法读取云端。请检查网络后重试；尚未把本地标记当作云端记录。';
@@ -118,14 +119,16 @@
   }
 
   async function write(id,patch){
-    if(!ready||busy)return;
+    if(!ready||busy)return false;
     if(!online){
       state[id]={...(state[id]||{}),...patch,feedbackUpdated:new Date().toISOString()};
       persistOffline();
       $('message').textContent='已保存到当前浏览器。';
+      if(Object.hasOwn(patch,'applied'))window.dispatchEvent(new CustomEvent('radar:mark',{detail:{id,applied:patch.applied,job:mergedJobs().find(job=>job.id===id)}}));
       draw();
-      return;
+      return true;
     }
+    let success=false;
     busy=true;
     controls();
     say('正在保存…');
@@ -133,6 +136,8 @@
       await api('/api/state',{method:'PATCH',body:JSON.stringify({id,patch})});
       state[id]={...(state[id]||{}),...patch};
       $('message').textContent='已保存到云端，其他设备会在30秒内或刷新后读取。';
+      if(Object.hasOwn(patch,'applied'))window.dispatchEvent(new CustomEvent('radar:mark',{detail:{id,applied:patch.applied}}));
+      success=true;
     }catch(error){
       $('message').textContent=error.message;
     }finally{
@@ -140,6 +145,7 @@
       await pull();
       draw();
     }
+    return success;
   }
 
   function download(name,payload){
@@ -220,6 +226,7 @@
         custom=[...new Map([...custom,...customRows].map(job=>[job.id,job])).values()];
         if(value.state&&typeof value.state==='object')state={...state,...value.state};
         persistOffline();
+        window.dispatchEvent(new Event('radar:state'));
         syncBatchOptions();
         updateSummary();
         $('message').textContent='记录已导入当前浏览器。';
@@ -241,6 +248,7 @@
     download('岗位筛选反馈.json',{schema:'career-radar-feedback-v1',exportedAt:new Date().toISOString(),feedback});
   };
 
+  window.radarBridge={online,api,write,getState:()=>state,getJobs:mergedJobs};
   syncBatchOptions(config.meta.latestBatch);
   updateSummary();
   draw();
@@ -250,4 +258,3 @@
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pull()});
   }else say('✓ 离线岗位库已载入 · 记录保存在当前浏览器');
 })();
-

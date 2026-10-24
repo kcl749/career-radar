@@ -11,6 +11,8 @@
 - 按“秋招 / 实习”和数量一键拉取公开候选岗位，并按个人偏好排序
 - 导入、导出岗位和个人标记数据
 - 使用云端数据库按账号保存状态，支持多设备同步
+- 在“已投递”页用气泡和时间线管理投递节点、下一步及截止日期，支持归档和恢复
+- 从 `.xlsx`、CSV、JSON 预览并导入投递记录；同公司同岗位可合并时间线或保留另一次投递
 
 一键更新的秋招候选来自牛客公开校招页面，实习候选来自实习僧公开列表及详情页。自动加入的岗位统一标记为“待复核”，投递前仍需在企业官网确认申请状态。每日训练题为同类题型原创内容，不抓取或复制北森商业题库。
 
@@ -27,7 +29,7 @@ npm run dev
 
 ## 数据与身份
 
-当前云端版本使用 ChatGPT Sites 的登录身份和 D1 数据库。岗位标记按登录用户隔离。生产数据库结构位于 `drizzle/0000_slim_prowler.sql`。
+当前云端版本使用 ChatGPT Sites 的登录身份和 D1 数据库。岗位标记、投递记录和节点均按登录用户隔离。表结构由 `drizzle/` 中的追加迁移管理。离线版将投递池保存在当前浏览器的 `radarApplicationsV1`，可通过“导出 JSON 备份”与在线版手动交换；原始导入文件在浏览器内解析，不上传保存。
 
 如需迁移到其他托管平台，需要替换 `app/chatgpt-auth.ts` 提供的身份来源，并为 `DB` 绑定配置兼容的数据库服务。
 
@@ -38,8 +40,11 @@ npm run dev
 - `app/board/template.html`：在线版与离线版共用的页面结构
 - `app/board/styles.css`：看板样式
 - `app/board/client.js`：在线与离线共用的交互逻辑
+- `app/board/applications.js`：投递池、时间线编辑和文件导入预览
+- `app/board/vendor/`：随单文件离线版内嵌的 Excel/CSV 解析库及许可证
 - `app/board/render.mjs`：将目录和运行模式注入页面模板
 - `app/api/state/route.ts`：读取和更新个人标记
+- `app/api/applications/route.ts`：读取和保存个人投递线与节点
 - `app/api/import/route.ts`：导入岗位及历史状态
 - `app/api/jobs/refresh/route.ts`：按类型和数量更新公开岗位候选
 - `app/job-refresh.mjs`：公开页面解析、去重和匹配排序
